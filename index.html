@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thai Science Link Hub - ศูนย์การเรียนรู้วิทยาศาสตร์และคณิตศาสตร์</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        earth: {
+                            sage: '#84a98c',
+                            olive: '#52796f',
+                            dark: '#2f3e46',
+                            terracotta: '#c86d51',
+                            cream: '#f4f1ea',
+                            sand: '#e9edc9',
+                            clay: '#dda15e',
+                            brown: '#bc6c25'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Sarabun', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Sarabun & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Sarabun', 'Inter', sans-serif; }
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f4f1ea; }
+        ::-webkit-scrollbar-thumb { background: #84a98c; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52796f; }
+        
+        /* Floating animations */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        .animate-float { animation: floatSlow 6s ease-in-out infinite; }
+        .animate-float-delayed { animation: floatSlow 8s ease-in-out infinite 2s; }
+        .animate-pulse-glow { animation: pulseGlow 4s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-earth-cream text-earth-dark h-full flex flex-col selection:bg-earth-sage selection:text-white">
+
+    <!-- Interactive Mouse Parallax Background Canvas -->
+    <canvas id="parallaxCanvas" class="fixed inset-0 pointer-events-none z-0 opacity-30"></canvas>
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-earth-olive text-white text-xs sm:text-sm py-2 px-4 text-center font-medium z-20 shadow-inner flex justify-between items-center">
+        <div class="flex items-center gap-2 mx-auto">
+            <i class="fa-solid fa-leaf text-earth-sand animate-bounce"></i>
+            <span>ยินดีต้อนรับสู่แหล่งการเรียนรู้วิทยาศาสตร์ คณิตศาสตร์ และเทคโนโลยี!</span>
+        </div>
+        <div class="hidden md:flex items-center gap-4 text-xs">
+            <span id="liveVisitorBadge" class="bg-earth-dark/40 px-2.5 py-1 rounded-full"><i class="fa-solid fa-users text-earth-sand mr-1"></i> ผู้เยี่ยมชม: <strong id="visitorCount">1,489</strong> คน</span>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-earth-dark/90 backdrop-blur-md shadow-sm border-b border-earth-sage/30 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchPage('home')">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-earth-olive to-earth-sage flex items-center justify-center text-white shadow-lg shadow-earth-olive/30 transform hover:rotate-6 transition-transform">
+                    <i class="fa-solid fa-atom text-2xl animate-spin" style="animation-duration: 20s;"></i>
+                </div>
+                <div>
+                    <span class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-earth-olive to-forest-700 bg-clip-text text-transparent">Thai Science Link Hub</span>
+                    <p class="text-xs text-gray-500 dark:text-gray-300 font-medium tracking-wide">แหล่งรวมความรู้วิทยาศาสตร์รอบด้าน</p>
+                </div>
+            </div>
+
+            <!-- Desktop Menu -->
+            <nav class="hidden lg:flex items-center space-x-1">
+                <button onclick="switchPage('home')" class="nav-btn px-3 py-2 rounded-xl text-sm font-semibold transition hover:bg-earth-sage/20 text-earth-olive" data-page="home">หน้าแรก</button>
+                
+                <!-- Subjects Dropdown -->
+                <div class="relative group">
+                    <button class="px-3 py-2 rounded-xl text-sm font-semibold transition hover:bg-earth-sage/20 flex items-center gap-1 text-gray-700 dark:text-gray-200">
+                        <span>หมวดวิชา</span>
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </button>
+                    <div class="absolute top-full left-0 w-64 bg-white dark:bg-earth-dark rounded-2xl shadow-xl border border-earth-sage/20 py-2 hidden group-hover:block transition-all transform origin-top-left animate-in fade-in zoom-in-95">
+                        <button onclick="switchPage('math')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-earth-sage/10 flex items-center gap-3 text-gray-700 dark:text-gray-200 font-medium"><i class="fa-solid fa-calculator text-earth-terracotta w-5"></i> คณิตศาสตร์ (Mathematics)</button>
+                        <button onclick="switchPage('physics')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-earth-sage/10 flex items-center gap-3 text-gray-700 dark:text-gray-200 font-medium"><i class="fa-solid fa-bolt text-amber-500 w-5"></i> ฟิสิกส์ (Physics)</button>
+                        <button onclick="switchPage('chemistry')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-earth-sage/10 flex items-center gap-3 text-gray-700 dark:text-gray-200 font-medium"><i class="fa-solid fa-flask text-teal-600 w-5"></i> เคมี (Chemistry)</button>
+                        <button onclick="switchPage('biology')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-earth-sage/10 flex items-center gap-3 text-gray-700 dark:text-gray-200 font-medium"><i class="fa-solid fa-dna text-forest-600 w-5"></i> ชีววิทยา (Biology)</button>
+                        <button onclick="switchPage('astronomy')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-earth-sage/10 flex items-center gap-3 text-gray-700 dark:text-gray-200 font-medium"><i class="fa-solid fa-moon text-indigo-600 w-5"></i> ดาราศาสตร์ (Astronomy)</button>
+                        <button onclick="switchPage('earthscience')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-earth-sage/10 flex items-center gap-3 text-gray-700 dark:text-gray-200 font-medium"><i class="fa-solid fa-globe text-emerald-600 w-5"></i> วิทยาศาสตร์โลกและอวกาศ</button>
+                        <button onclick="switchPage('geography')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-earth-sage/10 flex items-center gap-3 text-gray-700 dark:text-gray-200 font-medium"><i class="fa-solid fa-map-location-dot text-earth-clay w-5"></i> ภูมิศาสตร์ (Geography)</button>
+                    </div>
+                </div>
+
+                <button onclick="switchPage('topics')" class="nav-btn px-3 py-2 rounded-xl text-sm font-semibold transition hover:bg-earth-sage/20 text-gray-700 dark:text-gray-200" data-page="topics">หัวข้อทั้งหมด</button>
+                <button onclick="switchPage('content')" class="nav-btn px-3 py-2 rounded-xl text-sm font-semibold transition hover:bg-earth-sage/20 text-gray-700 dark:text-gray-200" data-page="content">คลังบทความ</button>
+                <button onclick="switchPage('facts')" class="nav-btn px-3 py-2 rounded-xl text-sm font-semibold transition hover:bg-earth-sage/20 text-gray-700 dark:text-gray-200" data-page="facts">เกร็ดความรู้</button>
+                <button onclick="switchPage('exam')" class="nav-btn px-3 py-2 rounded-xl text-sm font-semibold transition hover:bg-earth-sage/20 text-gray-700 dark:text-gray-200" data-page="exam">เตรียมสอบ</button>
+                <button onclick="switchPage('quizzes')" class="nav-btn px-3 py-2 rounded-xl text-sm font-semibold transition hover:bg-earth-sage/20 text-gray-700 dark:text-gray-200" data-page="quizzes">แบบทดสอบ</button>
+                <button onclick="switchPage('references')" class="nav-btn px-3 py-2 rounded-xl text-sm font-semibold transition hover:bg-earth-sage/20 text-gray-700 dark:text-gray-200" data-page="references">บรรณานุกรม</button>
+            </nav>
+
+            <!-- Actions & Auth -->
+            <div class="flex items-center space-x-3">
+                <!-- Search Button -->
+                <button onclick="openSearchModal()" class="w-10 h-10 rounded-xl bg-earth-sage/10 hover:bg-earth-sage/20 flex items-center justify-center text-earth-olive transition text-lg" title="ค้นหาเนื้อหา">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+
+                <!-- User Profile / Login trigger -->
+                <div id="authContainer">
+                    <button onclick="openAuthModal()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-earth-olive to-forest-700 text-white font-semibold text-sm shadow-md shadow-earth-olive/20 hover:opacity-95 transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-circle text-base"></i>
+                        <span id="authBtnText">เข้าสู่ระบบ</span>
+                    </button>
+                </div>
+
+                <!-- Mobile menu toggle -->
+                <button onclick="toggleMobileMenu()" class="lg:hidden w-10 h-10 rounded-xl bg-earth-sage/10 flex items-center justify-center text-earth-dark">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-white dark:bg-earth-dark border-b border-earth-sage/20 px-4 py-4 space-y-2 animate-in slide-in-from-top">
+            <button onclick="switchPage('home'); toggleMobileMenu();" class="block w-full text-left px-4 py-2.5 rounded-lg hover:bg-earth-sage/10 font-medium">หน้าแรก</button>
+            <div class="border-t border-gray-100 my-1 pt-1 text-xs text-gray-400 px-4">หมวดหมู่ 7 วิชา</div>
+            <button onclick="switchPage('math'); toggleMobileMenu();" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-earth-sage/10 text-sm pl-6"><i class="fa-solid fa-calculator text-earth-terracotta mr-2"></i> คณิตศาสตร์</button>
+            <button onclick="switchPage('physics'); toggleMobileMenu();" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-earth-sage/10 text-sm pl-6"><i class="fa-solid fa-bolt text-amber-500 mr-2"></i> ฟิสิกส์</button>
+            <button onclick="switchPage('chemistry'); toggleMobileMenu();" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-earth-sage/10 text-sm pl-6"><i class="fa-solid fa-flask text-teal-600 mr-2"></i> เคมี</button>
+            <button onclick="switchPage('biology'); toggleMobileMenu();" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-earth-sage/10 text-sm pl-6"><i class="fa-solid fa-dna text-forest-600 mr-2"></i> ชีววิทยา</button>
+            <button onclick="switchPage('astronomy'); toggleMobileMenu();" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-earth-sage/10 text-sm pl-6"><i class="fa-solid fa-moon text-indigo-600 mr-2"></i> ดาราศาสตร์</button>
+            <button onclick="switchPage('earthscience'); toggleMobileMenu();" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-earth-sage/10 text-sm pl-6"><i class="fa-solid fa-globe text-emerald-600 mr-2"></i> วิทย์โลกและอวกาศ</button>
+            <button onclick="switchPage('geography'); toggleMobileMenu();" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-earth-sage/10 text-sm pl-6"><i class="fa-solid fa-map-location-dot text-earth-clay mr-2"></i> ภูมิศาสตร์</button>
+            <div class="border-t border-gray-100 my-1 pt-1"></div>
+            <button onclick="switchPage('topics'); toggleMobileMenu();" class="block w-full text-left px-4 py-2.5 rounded-lg hover:bg-earth-sage/10 font-medium">หัวข้อทั้งหมด</button>
+            <button onclick="switchPage('content'); toggleMobileMenu();" class="block w-full text-left px-4 py-2.5 rounded-lg hover:bg-earth-sage/10 font-medium">คลังบทความ</button>
+            <button onclick="switchPage('facts'); toggleMobileMenu();" class="block w-full text-left px-4 py-2.5 rounded-lg hover:bg-earth-sage/10 font-medium">เกร็ดความรู้</button>
+            <button onclick="switchPage('exam'); toggleMobileMenu();" class="block w-full text-left px-4 py-2.5 rounded-lg hover:bg-earth-sage/10 font-medium">เตรียมสอบ</button>
+            <button onclick="switchPage('quizzes'); toggleMobileMenu();" class="block w-full text-left px-4 py-2.5 rounded-lg hover:bg-earth-sage/10 font-medium">แบบทดสอบ</button>
+            <button onclick="switchPage('references'); toggleMobileMenu();" class="block w-full text-left px-4 py-2.5 rounded-lg hover:bg-earth-sage/10 font-medium">บรรณานุกรม</button>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content Wrapper -->
+    <main class="flex-grow z-10 relative">
+
+        <!-- ================= PAGE: HOME ================= -->
+        <div id="page-home" class="page-view animate-in fade-in duration-300">
+            <!-- Hero Section with Mouse Parallax Elements -->
+            <section class="relative overflow-hidden py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-earth-sand/30 via-earth-cream to-earth-cream">
+                <!-- Floating Botanical & Scientific Graphics reacting to mouse -->
+                <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div id="floatElement1" class="absolute top-12 left-10 text-earth-sage/40 text-5xl animate-float transition-transform duration-300">
+                        <i class="fa-solid fa-dna"></i>
+                    </div>
+                    <div id="floatElement2" class="absolute top-24 right-16 text-earth-terracotta/30 text-6xl animate-float-delayed transition-transform duration-300">
+                        <i class="fa-solid fa-atom"></i>
+                    </div>
+                    <div id="floatElement3" class="absolute bottom-10 left-1/4 text-earth-olive/30 text-4xl animate-float transition-transform duration-300">
+                        <i class="fa-solid fa-flask"></i>
+                    </div>
+                    <div id="floatElement4" class="absolute bottom-20 right-1/4 text-earth-clay/30 text-5xl animate-float-delayed transition-transform duration-300">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                </div>
+
+                <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+                    <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 bg-earth-sage/20 border border-earth-sage/30 px-3.5 py-1.5 rounded-full text-earth-olive text-sm font-semibold">
+                            <i class="fa-solid fa-graduation-cap"></i> แหล่งการศึกษาวิทยาศาสตร์ คณิตศาสตร์ และเทคโนโลยี
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-earth-dark tracking-tight leading-tight">
+                            การศึกษา <br class="hidden sm:inline">
+                            <span class="bg-gradient-to-r from-earth-olive via-forest-700 to-earth-terracotta bg-clip-text text-transparent">ไม่มีที่สิ้นสุด</span>
+                        </h1>
+                        <p class="text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
+                            เรียนรู้ 7 วิชา: คณิตศาสตร์ ฟิสิกส์ เคมี ชีววิทยา ดาราศาสตร์ วิทยาศาสตร์โลกและอวกาศ และภูมิศาสตร์
+                        </p>
+                        <div class="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
+                            <button onclick="switchPage('topics')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-earth-olive to-forest-700 text-white font-bold shadow-lg shadow-earth-olive/30 hover:opacity-95 transition flex items-center gap-2 text-base">
+                                <i class="fa-solid fa-compass"></i> เริ่มต้นการเรียนรู้
+                            </button>
+                            <button onclick="switchPage('quizzes')" class="px-6 py-3.5 rounded-xl bg-white border-2 border-earth-sage text-earth-dark font-bold hover:bg-earth-sage/10 transition flex items-center gap-2 text-base">
+                                <i class="fa-solid fa-brain text-earth-terracotta"></i> ทำแบบทดสอบทันที
+                            </button>
+                        </div>
+                        <!-- Quick Stats -->
+                        <div class="grid grid-cols-3 gap-4 pt-8 border-t border-earth-sage/20 max-w-lg mx-auto lg:mx-0 text-center lg:text-left">
+                            <div>
+                                <h4 class="text-2xl sm:text-3xl font-black text-earth-olive">7</h4>
+                                <p class="text-xs sm:text-sm text-gray-500 font-medium">หมวดวิชาหลัก</p>
+                            </div>
+                            <div>
+                                <h4 class="text-2xl sm:text-3xl font-black text-earth-terracotta">50+</h4>
+                                <p class="text-xs sm:text-sm text-gray-500 font-medium">บทความคุณภาพ</p>
+                            </div>
+                            <div>
+                                <h4 class="text-2xl sm:text-3xl font-black text-amber-600">100%</h4>
+                                <p class="text-xs sm:text-sm text-gray-500 font-medium">เนื้อหาภาษาไทย</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hero Visual Card -->
+                    <div class="lg:col-span-5 relative">
+                        <div class="relative mx-auto max-w-md lg:max-w-none">
+                            <div class="absolute -inset-2 bg-gradient-to-r from-earth-olive to-earth-sage rounded-3xl blur-xl opacity-30 animate-pulse-glow"></div>
+                            <div class="relative bg-white dark:bg-earth-dark p-6 sm:p-8 rounded-3xl shadow-2xl border border-earth-sage/20 space-y-6">
+                                <div class="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-earth-sage/20 flex items-center justify-center text-earth-olive font-bold">
+                                            <i class="fa-solid fa-seedling"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-gray-800 dark:text-white">หัวข้อเด่นวันนี้</h3>
+                                            <p class="text-xs text-gray-500">วิทยาศาสตร์และธรรมชาติ</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-forest-100 text-forest-800 text-xs px-2.5 py-1 rounded-full font-semibold">แนะนำ</span>
+                                </div>
+                                <div class="space-y-3">
+                                    <h4 class="font-bold text-lg text-earth-dark hover:text-earth-olive cursor-pointer transition" onclick="switchPage('biology')">1. การสังเคราะห์ด้วยแสงในระดับโมเลกุล</h4>
+                                    <p class="text-sm text-gray-600 line-clamp-3">กระบวนการที่พืช สาหร่าย และแบคทีเรียบางชนิดแปลงพลังงานแสงเป็นพลังงานเคมีผ่านคลอโรพลาสต์...</p>
+                                </div>
+                                <div class="bg-earth-cream p-4 rounded-2xl flex items-center justify-between">
+                                    <div class="flex items-center gap-2 text-sm font-semibold text-earth-olive">
+                                        <i class="fa-solid fa-lightbulb text-earth-clay"></i> เกร็ดความรู้: ดีเอ็นเอมีความยาวรวมกันในเซลล์มนุษย์กว่า 2 เมตร!
+                                    </div>
+                                </div>
+                                <button onclick="switchPage('content')" class="w-full py-3 rounded-xl bg-earth-sage/20 hover:bg-earth-sage/30 text-earth-olive font-bold text-sm transition text-center">
+                                    อ่านบทความทั้งหมด <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7 Subjects Grid Showcase -->
+            <section class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                <div class="text-center space-y-3 mb-12">
+                    <span class="text-earth-olive text-sm font-bold uppercase tracking-wider">ศึกษาเรียนรู้ได้ด้วยตนเอง</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-earth-dark">เนื้อหา 7 สาขาวิชา</h2>
+                    <p class="text-gray-600 max-w-xl mx-auto">สามารถเตรียมสอบแข่งขันในสนามต่าง ๆ</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                    <!-- Mathematics Card -->
+                    <div onclick="switchPage('math')" class="group bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-earth-sage/20 cursor-pointer transform hover:-translate-y-1.5 flex flex-col justify-between">
+                        <div>
+                            <div class="w-14 h-14 rounded-2xl bg-orange-50 text-earth-terracotta flex items-center justify-center text-2xl mb-4 group-hover:bg-earth-terracotta group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-calculator"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">คณิตศาสตร์</h3>
+                            <p class="text-sm text-gray-500 line-clamp-3">แคลคูลัส พีชคณิต สถิติ ความน่าจะเป็น และเรขาคณิตวิเคราะห์</p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between text-earth-terracotta font-bold text-sm">
+                            <span>เข้าสู่บทเรียน</span>
+                            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Physics Card -->
+                    <div onclick="switchPage('physics')" class="group bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-earth-sage/20 cursor-pointer transform hover:-translate-y-1.5 flex flex-col justify-between">
+                        <div>
+                            <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mb-4 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">ฟิสิกส์</h3>
+                            <p class="text-sm text-gray-500 line-clamp-3">กลศาสตร์ แม่เหล็กไฟฟ้า อุณหพลศาสตร์ และฟิสิกส์ยุคใหม่</p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between text-amber-600 font-bold text-sm">
+                            <span>เข้าสู่บทเรียน</span>
+                            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Chemistry Card -->
+                    <div onclick="switchPage('chemistry')" class="group bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-earth-sage/20 cursor-pointer transform hover:-translate-y-1.5 flex flex-col justify-between">
+                        <div>
+                            <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl mb-4 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-flask"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">เคมี</h3>
+                            <p class="text-sm text-gray-500 line-clamp-3">ตารางธาตุ พันธะเคมี ปฏิกิริยาเคมี และเคมีอินทรีย์</p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between text-teal-600 font-bold text-sm">
+                            <span>เข้าสู่บทเรียน</span>
+                            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Biology Card -->
+                    <div onclick="switchPage('biology')" class="group bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-earth-sage/20 cursor-pointer transform hover:-translate-y-1.5 flex flex-col justify-between">
+                        <div>
+                            <div class="w-14 h-14 rounded-2xl bg-forest-50 text-forest-600 flex items-center justify-center text-2xl mb-4 group-hover:bg-forest-600 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-dna"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">ชีววิทยา</h3>
+                            <p class="text-sm text-gray-500 line-clamp-3">ศึกษาโครงสร้างสิ่งมีชีวิต เซลล์ พันธุศาสตร์ นิเวศวิทยา และกายวิภาคศาสตร์</p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between text-forest-600 font-bold text-sm">
+                            <span>เข้าสู่บทเรียน</span>
+                            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Astronomy Card -->
+                    <div onclick="switchPage('astronomy')" class="group bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-earth-sage/20 cursor-pointer transform hover:-translate-y-1.5 flex flex-col justify-between">
+                        <div>
+                            <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-moon"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">ดาราศาสตร์</h3>
+                            <p class="text-sm text-gray-500 line-clamp-3">ระบบสุริยะ จักรวาล หลุมดำ และวิวัฒนาการของดาวฤกษ์</p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between text-indigo-600 font-bold text-sm">
+                            <span>เข้าสู่บทเรียน</span>
+                            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Earth Science Card -->
+                    <div onclick="switchPage('earthscience')" class="group bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-earth-sage/20 cursor-pointer transform hover:-translate-y-1.5 flex flex-col justify-between">
+                        <div>
+                            <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">วิทย์โลกและอวกาศ</h3>
+                            <p class="text-sm text-gray-500 line-clamp-3">ธรณีวิทยา อุตุนิยมวิทยา แผ่นเปลือกโลก และการเปลี่ยนแปลงภูมิอากาศ</p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between text-emerald-600 font-bold text-sm">
+                            <span>เข้าสู่บทเรียน</span>
+                            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Geography Card -->
+                    <div onclick="switchPage('geography')" class="group bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 border border-earth-sage/20 cursor-pointer transform hover:-translate-y-1.5 flex flex-col justify-between">
+                        <div>
+                            <div class="w-14 h-14 rounded-2xl bg-stone-100 text-earth-clay flex items-center justify-center text-2xl mb-4 group-hover:bg-earth-clay group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">ภูมิศาสตร์</h3>
+                            <p class="text-sm text-gray-500 line-clamp-3">ภูมิศาสตร์กายภาพ ภูมิศาสตร์มนุษย์ ระบบสารสนเทศภูมิศาสตร์ (GIS)</p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between text-earth-clay font-bold text-sm">
+                            <span>เข้าสู่บทเรียน</span>
+                            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- All Topics Card -->
+                    <div onclick="switchPage('topics')" class="group bg-gradient-to-br from-earth-olive to-forest-800 text-white p-6 rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1.5 flex flex-col justify-between">
+                        <div>
+                            <div class="w-14 h-14 rounded-2xl bg-white/20 text-white flex items-center justify-center text-2xl mb-4">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">ดูหัวข้อทั้งหมด</h3>
+                            <p class="text-sm text-white/80 line-clamp-3">สำรวจหัวข้อย่อย หัวข้อพิเศษ และสารบัญทั้งหมดแบบละเอียดในหน้าเดียว</p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between text-white font-bold text-sm">
+                            <span>ดูสารบัญ</span>
+                            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= TEMPLATE FOR SUBJECT PAGES (Biology, Math, Physics, Chemistry, Astronomy, Earth Science, Geography) ================= -->
+        <!-- Each subject page shares a robust template populated dynamically or via unique IDs -->
+
+        <!-- MATHEMATICS PAGE -->
+        <div id="page-math" class="page-view hidden animate-in fade-in duration-300">
+            <div class="bg-gradient-to-r from-earth-terracotta to-earth-brown text-white py-16 px-4 sm:px-6 lg:px-8 mb-10 shadow-lg">
+                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="space-y-4 max-w-2xl">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold">หมวดวิชาคณิตศาสตร์ (Mathematics)</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">คณิตศาสตร์: ภาษาแห่งจักรวาลและตรรกะ</h1>
+                        <p class="text-white/90 text-sm sm:text-base">เจาะลึกแคลคูลัส พีชคณิตเชิงเส้น ความน่าจะเป็น และทฤษฎีบททางคณิตศาสตร์ที่มีอิทธิพลต่อเทคโนโลยี</p>
+                    </div>
+                    <div class="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center text-5xl shadow-inner">
+                        <i class="fa-solid fa-calculator text-orange-200"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-white dark:bg-earth-dark p-6 sm:p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-6">
+                            <h2 class="text-2xl font-bold text-earth-dark flex items-center gap-3">
+                                <i class="fa-solid fa-square-root-variable text-earth-terracotta"></i> บทความเด่น: แคลคูลัสและการเปลี่ยนแปลงอัตราเร็ว
+                            </h2>
+                            <p class="text-gray-600 leading-relaxed">
+                                แคลคูลัสอนุพันธ์และปริพันธ์ (Calculus) คิดค้นโดยไอแซก นิวตัน และกอตต์ฟรีด ไลบ์นิทซ์ เป็นเครื่องมือหลักในการอธิบายความเปลี่ยนแปลง อัตราความเร่ง พื้นใต้กราฟ และการเพิ่มขึ้นของประชากร
+                            </p>
+                            <div class="bg-orange-50 p-4 rounded-2xl border-l-4 border-earth-terracotta text-orange-900 text-sm">
+                                <strong>สูตรสำคัญ:</strong> อนุพันธ์ของฟังก์ชันกำลัง <code class="font-mono bg-white px-2 py-0.5 rounded">d/dx (x^n) = n * x^(n-1)</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 space-y-4">
+                            <h3 class="font-bold text-lg text-earth-dark flex items-center gap-2"><i class="fa-solid fa-file-pdf text-earth-terracotta"></i> สรุปสูตรคณิตศาสตร์</h3>
+                            <button onclick="showAlert('ดาวน์โหลดสรุปสูตรคณิตศาสตร์ ม.ปลาย สำเร็จ!')" class="w-full py-3 rounded-xl bg-earth-terracotta hover:bg-earth-brown text-white font-bold text-sm transition">
+                                ดาวน์โหลดสูตรคณิต (PDF)
+                            </button>
+                        </div>
+                        <div class="bg-earth-cream p-6 rounded-3xl shadow-sm border border-earth-sage/30 space-y-4">
+                            <h3 class="font-bold text-lg text-earth-dark flex items-center gap-2"><i class="fa-solid fa-brain text-earth-olive"></i> แบบทดสอบคณิตศาสตร์</h3>
+                            <p class="text-sm font-semibold text-gray-700">ค่าของอนุพันธ์ <code class="font-mono">d/dx (3x^2 + 5x)</code> เท่ากับข้อใด?</p>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(this, true, 'ถูกต้อง! 6x + 5')" class="w-full text-left px-4 py-2.5 rounded-xl bg-white hover:bg-orange-100 border text-sm transition">ก. 6x + 5</button>
+                                <button onclick="checkQuizAnswer(this, false, 'ผิดครับ ลองใหม่อีกครั้ง')" class="w-full text-left px-4 py-2.5 rounded-xl bg-white hover:bg-orange-100 border text-sm transition">ข. 3x + 5</button>
+                                <button onclick="checkQuizAnswer(this, false, 'ผิดครับ ลองใหม่อีกครั้ง')" class="w-full text-left px-4 py-2.5 rounded-xl bg-white hover:bg-orange-100 border text-sm transition">ค. 6x^2 + 5</button>
+                            </div>
+                            <div id="quizResult-math" class="text-xs font-semibold mt-2 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHYSICS PAGE -->
+        <div id="page-physics" class="page-view hidden animate-in fade-in duration-300">
+            <div class="bg-gradient-to-r from-amber-600 to-amber-800 text-white py-16 px-4 sm:px-6 lg:px-8 mb-10 shadow-lg">
+                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="space-y-4 max-w-2xl">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold">หมวดวิชาฟิสิกส์ (Physics)</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">ฟิสิกส์: กฎเกณฑ์และพลังงานแห่งสสาร</h1>
+                        <p class="text-white/90 text-sm sm:text-base">ทำความเข้าใจกลศาสตร์นิวตัน แม่เหล็กไฟฟ้า คลื่นแสง เสียง และทฤษฎีสัมพัทธภาพของไอน์สไตน์</p>
+                    </div>
+                    <div class="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center text-5xl shadow-inner">
+                        <i class="fa-solid fa-bolt text-amber-200"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-white dark:bg-earth-dark p-6 sm:p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-6">
+                            <h2 class="text-2xl font-bold text-earth-dark flex items-center gap-3">
+                                <i class="fa-solid fa-atom text-amber-500"></i> บทความเด่น: กฎการเคลื่อนที่ของนิวตันและแรงโน้มถ่วง
+                            </h2>
+                            <p class="text-gray-600 leading-relaxed">
+                                กฎข้อที่ 2 ของนิวตันระบุว่า แรงลัพธ์ที่กระทำต่อวัตถุก่อให้เกิดความเร่งที่เป็นสัดส่วนกับแรงและแปรผกผันกับมวล <code class="bg-gray-100 px-2 py-1 rounded font-mono text-amber-700">F = ma</code>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 space-y-4">
+                            <h3 class="font-bold text-lg text-earth-dark"><i class="fa-solid fa-file-pdf text-amber-600 mr-2"></i> สรุปสูตรฟิสิกส์</h3>
+                            <button onclick="showAlert('ดาวน์โหลดสรุปฟิสิกส์สำเร็จ!')" class="w-full py-3 rounded-xl bg-amber-600 text-white font-bold text-sm">ดาวน์โหลดชีทสูตรฟิสิกส์</button>
+                        </div>
+                        <div class="bg-earth-cream p-6 rounded-3xl shadow-sm border space-y-4">
+                            <h3 class="font-bold text-lg">แบบทดสอบฟิสิกส์</h3>
+                            <p class="text-sm font-semibold">หน่วยของแรงในระบบ SI คืออะไร?</p>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(this, true, 'ถูกต้อง! นิวตัน (N)')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ก. นิวตัน (Newton)</button>
+                                <button onclick="checkQuizAnswer(this, false, 'ผิดครับ')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ข. จูล (Joule)</button>
+                            </div>
+                            <div id="quizResult-physics" class="text-xs font-semibold mt-2 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHEMISTRY PAGE -->
+        <div id="page-chemistry" class="page-view hidden animate-in fade-in duration-300">
+            <div class="bg-gradient-to-r from-teal-700 to-teal-900 text-white py-16 px-4 sm:px-6 lg:px-8 mb-10 shadow-lg">
+                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="space-y-4 max-w-2xl">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold">หมวดวิชาเคมี (Chemistry)</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">เคมี: สสาร พันธะ และปฏิกิริยาโมเลกุล</h1>
+                        <p class="text-white/90 text-sm sm:text-base">ทำความเข้าใจตารางธาตุ พันธะเคมี กรด-เบส เคมีไฟฟ้า และปฏิกิริยาในชีวิตประจำวัน</p>
+                    </div>
+                    <div class="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center text-5xl shadow-inner">
+                        <i class="fa-solid fa-flask text-teal-200"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-white dark:bg-earth-dark p-6 sm:p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-6">
+                            <h2 class="text-2xl font-bold text-earth-dark flex items-center gap-3">
+                                <i class="fa-solid fa-vials text-teal-600"></i> บทความเด่น: พันธะเคมีและโครงสร้างของน้ำ (H2O)
+                            </h2>
+                            <p class="text-gray-600 leading-relaxed">
+                                โมเลกุลของน้ำยึดเหนี่ยวกันด้วยพันธะโคเวเลนต์แบบมีขั้วและพันธะไฮโดรเจน ทำให้มีคุณสมบัติพิเศษเป็นตัวทำละลายสากล มีความจุความร้อนสูง และแรงตึงผิวสูง
+                            </p>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border space-y-4">
+                            <h3 class="font-bold text-lg"><i class="fa-solid fa-file-pdf text-teal-600 mr-2"></i> สรุปเคมี</h3>
+                            <button onclick="showAlert('ดาวน์โหลดสรุปเคมีสำเร็จ!')" class="w-full py-3 rounded-xl bg-teal-600 text-white font-bold text-sm">ดาวน์โหลดสรุปตารางธาตุ</button>
+                        </div>
+                        <div class="bg-earth-cream p-6 rounded-3xl shadow-sm border space-y-4">
+                            <h3 class="font-bold text-lg">แบบทดสอบเคมี</h3>
+                            <p class="text-sm font-semibold">ธาตุใดมีสัญลักษณ์ทางเคมีว่า "Na"?</p>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(this, true, 'ถูกต้อง! โซเดียม (Sodium)')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ก. โซเดียม (Sodium)</button>
+                                <button onclick="checkQuizAnswer(this, false, 'ผิดครับ')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ข. ไนโตรเจน (Nitrogen)</button>
+                            </div>
+                            <div id="quizResult-chemistry" class="text-xs font-semibold mt-2 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BIOLOGY PAGE -->
+        <div id="page-biology" class="page-view hidden animate-in fade-in duration-300">
+            <div class="bg-gradient-to-r from-forest-800 to-earth-olive text-white py-16 px-4 sm:px-6 lg:px-8 mb-10 shadow-lg">
+                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="space-y-4 max-w-2xl">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold">หมวดวิชาชีววิทยา (Biology)</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">ชีววิทยา: โลกแห่งสิ่งมีชีวิตและกลไกเซลล์</h1>
+                        <p class="text-white/90 text-sm sm:text-base">ศึกษาตั้งแต่ระดับโมเลกุลของดีเอ็นเอ การทำงานของออร์แกเนลล์ ระบบในร่างกายมนุษย์ จนถึงนิเวศวิทยาสิ่งแวดล้อม</p>
+                    </div>
+                    <div class="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center text-5xl shadow-inner">
+                        <i class="fa-solid fa-dna text-forest-200"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-12">
+                <!-- Subject Sections -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Main Articles & Content -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-white dark:bg-earth-dark p-6 sm:p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-6">
+                            <h2 class="text-2xl font-bold text-earth-dark flex items-center gap-3">
+                                <i class="fa-solid fa-book-open text-forest-600"></i> บทความเด่น: การสังเคราะห์ด้วยแสงและการหายใจระดับเซลล์
+                            </h2>
+                            <p class="text-gray-600 leading-relaxed">
+                                กระบวนการสังเคราะห์ด้วยแสง (Photosynthesis) เป็นหัวใจสำคัญของห่วงโซ่อาหาร โดยพืชเปลี่ยนพลังงานแสงอาทิตย์ให้เป็นน้ำตาลกลูโคส พร้อมทั้งปล่อยก๊าซออกซิเจนออกสู่บรรยากาศ สมการเคมีหลักคือ <code class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-forest-700 font-mono">6CO2 + 6H2O + Light -> C6H12O6 + 6O2</code>
+                            </p>
+                            <div class="bg-forest-50 p-4 rounded-2xl border-l-4 border-forest-600 text-forest-900 text-sm">
+                                <strong>เกร็ดน่ารู้:</strong> คลอโรพลาสต์ในเซลล์พืชมีวิวัฒนาการมาจากแบคทีเรียสังเคราะห์แสงที่ถูกกลืนเข้าไปในเซลล์โบราณ (Endosymbiotic Theory)
+                            </div>
+                        </div>
+
+                        <!-- Topic Breakdown Accordion -->
+                        <div class="bg-white dark:bg-earth-dark p-6 sm:p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-4">
+                            <h3 class="text-xl font-bold text-earth-dark mb-4"><i class="fa-solid fa-list-check text-forest-600 mr-2"></i> หัวข้อย่อยในวิชาชีววิทยา</h3>
+                            
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
+                                <button onclick="toggleAccordion('bio-acc-1')" class="w-full px-5 py-4 text-left font-semibold flex justify-between items-center hover:bg-forest-50/50">
+                                    <span>1. ชีววิทยาของเซลล์ (Cell Biology) และออร์แกเนลล์</span>
+                                    <i class="fa-solid fa-chevron-down text-xs" id="icon-bio-acc-1"></i>
+                                </button>
+                                <div id="bio-acc-1" class="hidden px-5 py-4 bg-gray-50 dark:bg-earth-dark/50 text-sm text-gray-600 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                                    <p>• โครงสร้างเยื่อหุ้มเซลล์ (Fluid Mosaic Model)</p>
+                                    <p>• หน้าที่ของไมโทคอนเดรีย ไรโบโซม เอนโดพลาสติกเรติคูลัม และกอลจิบอดี้</p>
+                                    <p>• การลำเลียงสารผ่านเซลล์ (Active & Passive Transport)</p>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
+                                <button onclick="toggleAccordion('bio-acc-2')" class="w-full px-5 py-4 text-left font-semibold flex justify-between items-center hover:bg-forest-50/50">
+                                    <span>2. พันธุศาสตร์และกรดนิวคลีอิก (Genetics & DNA)</span>
+                                    <i class="fa-solid fa-chevron-down text-xs" id="icon-bio-acc-2"></i>
+                                </button>
+                                <div id="bio-acc-2" class="hidden px-5 py-4 bg-gray-50 dark:bg-earth-dark/50 text-sm text-gray-600 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                                    <p>• โครงสร้างเกลียวคู่ของ DNA (Watson & Crick)</p>
+                                    <p>• กระบวนการจำลองตัวเอง (Replication), การถอดรหัส (Transcription), และการแปลรหัส (Translation)</p>
+                                    <p>• กฎของเมนเดลและการถ่ายทอดทางพันธุศาสตร์</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Widgets -->
+                    <div class="space-y-6">
+                        <!-- Exam Prep Widget -->
+                        <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 space-y-4">
+                            <h3 class="font-bold text-lg text-earth-dark flex items-center gap-2"><i class="fa-solid fa-file-pdf text-earth-terracotta"></i> เอกสารสรุป & เตรียมสอบ</h3>
+                            <p class="text-xs text-gray-500">ดาวน์โหลดสรุปสูตรและชีทสรุปชีววิทยาสำหรับสอบเข้ามหาวิทยาลัย</p>
+                            <button onclick="showAlert('ดาวน์โหลดสรุปชีววิทยา ม.ปลาย สำเร็จ!')" class="w-full py-3 rounded-xl bg-forest-600 hover:bg-forest-700 text-white font-bold text-sm transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download"></i> ดาวน์โหลดชีทสรุป (PDF)
+                            </button>
+                        </div>
+
+                        <!-- Mini Quiz Widget -->
+                        <div class="bg-earth-cream p-6 rounded-3xl shadow-sm border border-earth-sage/30 space-y-4">
+                            <h3 class="font-bold text-lg text-earth-dark flex items-center gap-2"><i class="fa-solid fa-brain text-earth-olive"></i> แบบทดสอบย่อย (Quiz)</h3>
+                            <p class="text-sm font-semibold text-gray-700">ออร์แกเนลล์ใดทำหน้าที่สร้างพลังงาน (ATP) ให้แก่เซลล์?</p>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(this, true, 'ถูกต้อง! ไมโทคอนเดรียคือโรงงานผลิตพลังงานของเซลล์')" class="w-full text-left px-4 py-2.5 rounded-xl bg-white hover:bg-forest-100 border border-earth-sage/20 text-sm transition">ก. ไมโทคอนเดรีย (Mitochondria)</button>
+                                <button onclick="checkQuizAnswer(this, false, 'ผิดครับ ลองใหม่อีกครั้ง')" class="w-full text-left px-4 py-2.5 rounded-xl bg-white hover:bg-forest-100 border border-earth-sage/20 text-sm transition">ข. ไรโบโซม (Ribosome)</button>
+                                <button onclick="checkQuizAnswer(this, false, 'ผิดครับ ลองใหม่อีกครั้ง')" class="w-full text-left px-4 py-2.5 rounded-xl bg-white hover:bg-forest-100 border border-earth-sage/20 text-sm transition">ค. กอลจิบอดี้ (Golgi apparatus)</button>
+                            </div>
+                            <div id="quizResult-biology" class="text-xs font-semibold mt-2 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ASTRONOMY PAGE -->
+        <div id="page-astronomy" class="page-view hidden animate-in fade-in duration-300">
+            <div class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8 mb-10 shadow-lg">
+                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="space-y-4 max-w-2xl">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold">หมวดวิชาดาราศาสตร์ (Astronomy)</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">ดาราศาสตร์: สำรวจจักรวาล ดาวฤกษ์ และหลุมดำ</h1>
+                        <p class="text-white/90 text-sm sm:text-base">ศึกษาการกำเนิดเอกภพ (Big Bang) ระบบสุริยะ กาแล็กซี และฟิสิกส์ดาราศาสตร์ขั้นสูง</p>
+                    </div>
+                    <div class="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center text-5xl shadow-inner">
+                        <i class="fa-solid fa-moon text-indigo-200"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-white dark:bg-earth-dark p-6 sm:p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-6">
+                            <h2 class="text-2xl font-bold text-earth-dark flex items-center gap-3">
+                                <i class="fa-solid fa-star text-indigo-600"></i> บทความเด่น: วิวัฒนาการของดาวฤกษ์และหลุมดำ
+                            </h2>
+                            <p class="text-gray-600 leading-relaxed">
+                                ดาวฤกษ์มวลมหาศาลเมื่อสิ้นอายุขัยจะเกิดการระเบิดครั้งใหญ่ที่เรียกว่า "ซูเปอร์โนวา" (Supernova) และทิ้งแกนกลางที่หนาแน่นกลายเป็นดาวนิวตรอนหรือหลุมดำ (Black Hole)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border space-y-4">
+                            <h3 class="font-bold text-lg"><i class="fa-solid fa-file-pdf text-indigo-600 mr-2"></i> สรุปดาราศาสตร์</h3>
+                            <button onclick="showAlert('ดาวน์โหลดสรุปดาราศาสตร์สำเร็จ!')" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm">ดาวน์โหลดชีทระบบสุริยะ</button>
+                        </div>
+                        <div class="bg-earth-cream p-6 rounded-3xl shadow-sm border space-y-4">
+                            <h3 class="font-bold text-lg">แบบทดสอบดาราศาสตร์</h3>
+                            <p class="text-sm font-semibold">ดาวเคราะห์ดวงใดในระบบสุริยะที่มีขนาดใหญ่ที่สุด?</p>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(this, true, 'ถูกต้อง! ดาวพฤหัสบดี (Jupiter)')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ก. ดาวพฤหัสบดี</button>
+                                <button onclick="checkQuizAnswer(this, false, 'ผิดครับ')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ข. ดาวเสาร์</button>
+                            </div>
+                            <div id="quizResult-astronomy" class="text-xs font-semibold mt-2 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EARTH SCIENCE PAGE -->
+        <div id="page-earthscience" class="page-view hidden animate-in fade-in duration-300">
+            <div class="bg-gradient-to-r from-emerald-700 to-emerald-900 text-white py-16 px-4 sm:px-6 lg:px-8 mb-10 shadow-lg">
+                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="space-y-4 max-w-2xl">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold">หมวดวิชาวิทยาศาสตร์โลกและอวกาศ</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">วิทยาศาสตร์โลกและอวกาศ: ธรณีและบรรยากาศ</h1>
+                        <p class="text-white/90 text-sm sm:text-base">ศึกษาโครงสร้างโลก แผ่นเปลือกโลก การเกิดแผ่นดินไหว สภาพอากาศ และการเปลี่ยนแปลงสภาพภูมิอากาศโลก</p>
+                    </div>
+                    <div class="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center text-5xl shadow-inner">
+                        <i class="fa-solid fa-globe text-emerald-200"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-white dark:bg-earth-dark p-6 sm:p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-6">
+                            <h2 class="text-2xl font-bold text-earth-dark flex items-center gap-3">
+                                <i class="fa-solid fa-mountain text-emerald-600"></i> บทความเด่น: ธรณีแปรสัณฐานและการเคลื่อนที่ของเปลือกโลก
+                            </h2>
+                            <p class="text-gray-600 leading-relaxed">
+                                เปลือกโลกแบ่งออกเป็นแผ่นเปลือกโลกขนาดใหญ่ (Tectonic Plates) ที่ลอยอยู่บนชั้นเนื้อโลกตอนบน การชนกันหรือแยกตัวกันของแผ่นเปลือกโลกก่อให้เกิดเทือกเขา ภูเขาไฟระเบิด และสึนามิ
+                            </p>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border space-y-4">
+                            <h3 class="font-bold text-lg"><i class="fa-solid fa-file-pdf text-emerald-600 mr-2"></i> สรุปวิทย์โลก</h3>
+                            <button onclick="showAlert('ดาวน์โหลดสรุปวิทย์โลกสำเร็จ!')" class="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm">ดาวน์โหลดชีทสรุปธรณีวิทยา</button>
+                        </div>
+                        <div class="bg-earth-cream p-6 rounded-3xl shadow-sm border space-y-4">
+                            <h3 class="font-bold text-lg">แบบทดสอบวิทย์โลก</h3>
+                            <p class="text-sm font-semibold">รอยต่อของแผ่นเปลือกโลกที่เคลื่อนที่ชนกันจะทำให้เกิดปรากฏการณ์ใดเด่นชัดที่สุด?</p>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(this, true, 'ถูกต้อง! แผ่นดินไหวและภูเขาไฟ')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ก. แผ่นดินไหวและภูเขาไฟ</button>
+                                <button onclick="checkQuizAnswer(this, false, 'ผิดครับ')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ข. น้ำขึ้นน้ำลง</button>
+                            </div>
+                            <div id="quizResult-earthscience" class="text-xs font-semibold mt-2 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GEOGRAPHY PAGE -->
+        <div id="page-geography" class="page-view hidden animate-in fade-in duration-300">
+            <div class="bg-gradient-to-r from-stone-700 to-stone-900 text-white py-16 px-4 sm:px-6 lg:px-8 mb-10 shadow-lg">
+                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="space-y-4 max-w-2xl">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold">หมวดวิชาภูมิศาสตร์ (Geography)</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">ภูมิศาสตร์: มนุษย์ พื้นที่ และสิ่งแวดล้อม</h1>
+                        <p class="text-white/90 text-sm sm:text-base">สำรวจภูมิศาสตร์กายภาพ ภูมิศาสตร์มนุษย์ แผนที่ และเทคโนโลยีสารสนเทศภูมิศาสตร์ (GIS / Remote Sensing)</p>
+                    </div>
+                    <div class="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center text-5xl shadow-inner">
+                        <i class="fa-solid fa-map-location-dot text-stone-200"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-white dark:bg-earth-dark p-6 sm:p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-6">
+                            <h2 class="text-2xl font-bold text-earth-dark flex items-center gap-3">
+                                <i class="fa-solid fa-map text-earth-clay"></i> บทความเด่น: เทคโนโลยี GIS และการวิเคราะห์พื้นที่
+                            </h2>
+                            <p class="text-gray-600 leading-relaxed">
+                                ระบบสารสนเทศภูมิศาสตร์ (GIS) ผสานข้อมูลเชิงพื้นที่ (Spatial Data) เข้ากับฐานข้อมูลตาราง เพื่อใช้วิเคราะห์ผังเมือง การจัดการภัยพิบัติ และทรัพยากรธรรมชาติได้อย่างแม่นยำ
+                            </p>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border space-y-4">
+                            <h3 class="font-bold text-lg"><i class="fa-solid fa-file-pdf text-earth-clay mr-2"></i> สรุปภูมิศาสตร์</h3>
+                            <button onclick="showAlert('ดาวน์โหลดสรุปภูมิศาสตร์สำเร็จ!')" class="w-full py-3 rounded-xl bg-earth-clay text-white font-bold text-sm">ดาวน์โหลดสรุปแผนที่และ GIS</button>
+                        </div>
+                        <div class="bg-earth-cream p-6 rounded-3xl shadow-sm border space-y-4">
+                            <h3 class="font-bold text-lg">แบบทดสอบภูมิศาสตร์</h3>
+                            <p class="text-sm font-semibold">เส้นละติจูด 0 องศา เรียกว่าเส้นใด?</p>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(this, true, 'ถูกต้อง! เส้นศูนย์สูตร (Equator)')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ก. เส้นศูนย์สูตร (Equator)</button>
+                                <button onclick="checkQuizAnswer(this, false, 'ผิดครับ')" class="w-full text-left px-4 py-2.5 bg-white rounded-xl border text-sm">ข. เส้นเมริเดียนแรก</button>
+                            </div>
+                            <div id="quizResult-geography" class="text-xs font-semibold mt-2 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: TOPICS ================= -->
+        <div id="page-topics" class="page-view hidden animate-in fade-in duration-300 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+            <div class="text-center space-y-3">
+                <span class="text-earth-olive text-sm font-bold uppercase tracking-wider">Curriculum Directory</span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-earth-dark">สารบัญหัวข้อทั้งหมด</h1>
+                <p class="text-gray-600 max-w-xl mx-auto">รายชื่อหัวข้อการเรียนรู้ทั้งหมด จัดหมวดหมู่ตามสาขาวิชาเพื่อการค้นหาที่รวดเร็ว</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Topic Item Card 1 -->
+                <div onclick="switchPage('biology')" class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 hover:shadow-md transition cursor-pointer space-y-3">
+                    <span class="bg-forest-100 text-forest-800 text-xs px-3 py-1 rounded-full font-semibold">ชีววิทยา</span>
+                    <h3 class="font-bold text-lg text-earth-dark">โครงสร้างเซลล์และการทำงานของออร์แกเนลล์</h3>
+                    <p class="text-xs text-gray-500">ศึกษาเยื่อหุ้มเซลล์ ไมโทคอนเดรีย และกระบวนการออสโมซิส</p>
+                </div>
+                <!-- Topic Item Card 2 -->
+                <div onclick="switchPage('math')" class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 hover:shadow-md transition cursor-pointer space-y-3">
+                    <span class="bg-orange-100 text-orange-800 text-xs px-3 py-1 rounded-full font-semibold">คณิตศาสตร์</span>
+                    <h3 class="font-bold text-lg text-earth-dark">แคลคูลัสเบื้องต้น (Calculus)</h3>
+                    <p class="text-xs text-gray-500">ลิมิต อนุพันธ์ และการประยุกต์ใช้งานในชีวิตประจำวัน</p>
+                </div>
+                <!-- Topic Item Card 3 -->
+                <div onclick="switchPage('physics')" class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 hover:shadow-md transition cursor-pointer space-y-3">
+                    <span class="bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-full font-semibold">ฟิสิกส์</span>
+                    <h3 class="font-bold text-lg text-earth-dark">กลศาสตร์นิวตันและแรง</h3>
+                    <p class="text-xs text-gray-500">กฎการเคลื่อนที่ 3 ข้อของนิวตันและแรงเสียดทาน</p>
+                </div>
+                <!-- Topic Item Card 4 -->
+                <div onclick="switchPage('chemistry')" class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 hover:shadow-md transition cursor-pointer space-y-3">
+                    <span class="bg-teal-100 text-teal-800 text-xs px-3 py-1 rounded-full font-semibold">เคมี</span>
+                    <h3 class="font-bold text-lg text-earth-dark">ตารางธาตุและพันธะเคมี</h3>
+                    <p class="text-xs text-gray-500">พันธะไอออนิก พันธะโคเวเลนต์ และพันธะโลหะ</p>
+                </div>
+                <!-- Topic Item Card 5 -->
+                <div onclick="switchPage('astronomy')" class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 hover:shadow-md transition cursor-pointer space-y-3">
+                    <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full font-semibold">ดาราศาสตร์</span>
+                    <h3 class="font-bold text-lg text-earth-dark">ระบบสุริยะและดาราศาสตร์ฟิสิกส์</h3>
+                    <p class="text-xs text-gray-500">การกำเนิดดาวฤกษ์ หลุมดำ และกาแล็กซีทางช้างเผือก</p>
+                </div>
+                <!-- Topic Item Card 6 -->
+                <div onclick="switchPage('geography')" class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 hover:shadow-md transition cursor-pointer space-y-3">
+                    <span class="bg-stone-200 text-stone-800 text-xs px-3 py-1 rounded-full font-semibold">ภูมิศาสตร์</span>
+                    <h3 class="font-bold text-lg text-earth-dark">ระบบสารสนเทศภูมิศาสตร์ (GIS)</h3>
+                    <p class="text-xs text-gray-500">การแปลภาพถ่ายดาวเทียมและการวิเคราะห์เชิงพื้นที่</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: CONTENT ================= -->
+        <div id="page-content" class="page-view hidden animate-in fade-in duration-300 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+            <div class="text-center space-y-3">
+                <span class="text-earth-olive text-sm font-bold uppercase tracking-wider">Article Repository</span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-earth-dark">คลังบทความวิทยาศาสตร์และคณิตศาสตร์</h1>
+                <p class="text-gray-600 max-w-xl mx-auto">รวมบทความเชิงลึก เรียบเรียงเข้าใจง่าย พร้อมภาพประกอบและตัวอย่างจริง</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Article Card -->
+                <div class="bg-white dark:bg-earth-dark rounded-3xl overflow-hidden shadow-sm border border-earth-sage/20 flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 bg-gradient-to-r from-forest-600 to-earth-olive flex items-center justify-center text-white text-4xl">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <span class="text-xs font-semibold text-forest-700 bg-forest-50 px-2.5 py-1 rounded-full">ชีววิทยา</span>
+                            <h3 class="font-bold text-xl text-earth-dark">กลไกการทำงานของเอนไซม์ในร่างกายมนุษย์</h3>
+                            <p class="text-sm text-gray-600 line-clamp-3">เอนไซม์เป็นโปรตีนตัวเร่งปฏิกิริยาชีวเคมีที่มีความจำเพาะสูง ช่วยให้ปฏิกิริยาเคมีในร่างกายดำเนินไปได้อย่างรวดเร็วที่อุณหภูมิปกติ</p>
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <button onclick="switchPage('biology')" class="text-sm font-bold text-forest-700 flex items-center gap-2 hover:underline">
+                            อ่านบทความเต็ม <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Article Card 2 -->
+                <div class="bg-white dark:bg-earth-dark rounded-3xl overflow-hidden shadow-sm border border-earth-sage/20 flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 bg-gradient-to-r from-earth-terracotta to-earth-brown flex items-center justify-center text-white text-4xl">
+                            <i class="fa-solid fa-pi"></i>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <span class="text-xs font-semibold text-earth-terracotta bg-orange-50 px-2.5 py-1 rounded-full">คณิตศาสตร์</span>
+                            <h3 class="font-bold text-xl text-earth-dark">สัจพจน์และทฤษฎีบทของยูคลิด</h3>
+                            <p class="text-sm text-gray-600 line-clamp-3">รากฐานของเรขาคณิตแบบยูคลิดที่ใช้อธิบายรูปทรง ระยะทาง และมุม ซึ่งเป็นรากฐานของวิศวกรรมสถาปัตยกรรม</p>
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <button onclick="switchPage('math')" class="text-sm font-bold text-earth-terracotta flex items-center gap-2 hover:underline">
+                            อ่านบทความเต็ม <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Article Card 3 -->
+                <div class="bg-white dark:bg-earth-dark rounded-3xl overflow-hidden shadow-sm border border-earth-sage/20 flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 bg-gradient-to-r from-amber-600 to-amber-700 flex items-center justify-center text-white text-4xl">
+                            <i class="fa-solid fa-atom"></i>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full">ฟิสิกส์</span>
+                            <h3 class="font-bold text-xl text-earth-dark">คลื่นแม่เหล็กไฟฟ้าและสเปกตรัมแสง</h3>
+                            <p class="text-sm text-gray-600 line-clamp-3">การเดินทางของคลื่นแม่เหล็กไฟฟ้าตั้งแต่คลื่นวิทยุ รังสีอินฟราเรด แสงที่มองเห็น จนถึงรังสีแกมมา</p>
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <button onclick="switchPage('physics')" class="text-sm font-bold text-amber-700 flex items-center gap-2 hover:underline">
+                            อ่านบทความเต็ม <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: FACTS ================= -->
+        <div id="page-facts" class="page-view hidden animate-in fade-in duration-300 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+            <div class="text-center space-y-3">
+                <span class="text-earth-olive text-sm font-bold uppercase tracking-wider">Fascinating Science Trivia</span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-earth-dark">เกร็ดความรู้และข้อเท็จจริงน่าทึ่ง</h1>
+                <p class="text-gray-600 max-w-xl mx-auto">รวมเรื่องราวแปลกแต่วิทยาศาสตร์พิสูจน์ได้รอบตัวคุณ</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-earth-sage/20 text-earth-olive flex items-center justify-center text-xl flex-shrink-0">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-lg text-earth-dark">ดีเอ็นเอในร่างกายมนุษย์ยาวแค่ไหน?</h3>
+                        <p class="text-sm text-gray-600">หากนำสาย DNA ในทุกเซลล์ของร่างกายมนุษย์มาร้อยต่อกัน จะมีความยาวไป-กลับจากโลกถึงดวงอาทิตย์ได้มากกว่าหลายร้อยรอบ!</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-earth-terracotta/20 text-earth-terracotta flex items-center justify-center text-xl flex-shrink-0">
+                        <i class="fa-solid fa-water"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-lg text-earth-dark">น้ำบนโลกมาจากไหน?</h3>
+                        <p class="text-sm text-gray-600">น้ำส่วนใหญ่บนโลกเกิดขึ้นจากอุกกาบาตและดาวหางที่พุ่งชนโลกในยุคดึกดำบรรพ์เมื่อหลายพันล้านปีก่อน</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-600 flex items-center justify-center text-xl flex-shrink-0">
+                        <i class="fa-solid fa-sun"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-lg text-earth-dark">ความเร็วของแสง</h3>
+                        <p class="text-sm text-gray-600">แสงเดินทางด้วยความเร็วประมาณ 300,000 กิโลเมตรต่อวินาที ใช้เวลาเพียง 8 นาทีเศษในการเดินทางจากดวงอาทิตย์มายังโลก</p>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-600 flex items-center justify-center text-xl flex-shrink-0">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-lg text-earth-dark">พลังงานสมอง</h3>
+                        <p class="text-sm text-gray-600">สมองของมนุษย์ใช้พลังงานไฟฟ้าประมาณ 20 วัตต์ ซึ่งเทียบเท่ากับหลอดไฟ LED ดวงเล็กๆ ดวงหนึ่งเท่านั้น</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: EXAM PREP ================= -->
+        <div id="page-exam" class="page-view hidden animate-in fade-in duration-300 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+            <div class="text-center space-y-3">
+                <span class="text-earth-olive text-sm font-bold uppercase tracking-wider">Exam Preparation Hub</span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-earth-dark">ศูนย์รวมเอกสารเตรียมสอบและสูตรสำคัญ</h1>
+                <p class="text-gray-600 max-w-xl mx-auto">ดาวน์โหลดสรุปสูตร ชีทข้อสอบเก่า และแนวข้อสอบพร้อมเฉลยละเอียด</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-forest-50 text-forest-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-earth-dark">สรุปสูตรฟิสิกส์ ม.ปลาย ทุกบท</h3>
+                    <p class="text-xs text-gray-500">รวบรวมสูตรกลศาสตร์ ไฟฟ้า คลื่น และฟิสิกส์นิวเคลียร์พร้อมตัวอย่างโจทย์</p>
+                    <button onclick="showAlert('ดาวน์โหลดสรุปสูตรฟิสิกส์สำเร็จ!')" class="w-full py-2.5 rounded-xl bg-forest-600 text-white font-bold text-sm">ดาวน์โหลด PDF</button>
+                </div>
+
+                <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-orange-50 text-earth-terracotta flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-earth-dark">สูตรแคลคูลัสและสถิติ</h3>
+                    <p class="text-xs text-gray-500">รวมสูตรดิฟ อินทิเกรต และความน่าจะเป็นสำหรับสอบเข้ามหาวิทยาลัย</p>
+                    <button onclick="showAlert('ดาวน์โหลดสรุปคณิตศาสตร์สำเร็จ!')" class="w-full py-2.5 rounded-xl bg-earth-terracotta text-white font-bold text-sm">ดาวน์โหลด PDF</button>
+                </div>
+
+                <div class="bg-white dark:bg-earth-dark p-6 rounded-3xl shadow-sm border border-earth-sage/20 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-earth-dark">ชีวะสรุปภาพรวม (Mind Mapping)</h3>
+                    <p class="text-xs text-gray-500">สรุปเนื้อหาชีววิทยาระบบร่างกาย เซลล์ และพันธุศาสตร์แบบเข้าใจง่าย</p>
+                    <button onclick="showAlert('ดาวน์โหลดสรุปชีววิทยาสำเร็จ!')" class="w-full py-2.5 rounded-xl bg-teal-600 text-white font-bold text-sm">ดาวน์โหลด PDF</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: QUIZZES ================= -->
+        <div id="page-quizzes" class="page-view hidden animate-in fade-in duration-300 py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
+            <div class="text-center space-y-3">
+                <span class="text-earth-olive text-sm font-bold uppercase tracking-wider">Interactive Assessment</span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-earth-dark">แบบทดสอบวัดความรู้สหวิทยาการ</h1>
+                <p class="text-gray-600">ทดสอบความเข้าใจของคุณในหลากหลายสาขาวิชาพร้อมรับคะแนนทันที</p>
+            </div>
+
+            <div id="mainQuizContainer" class="bg-white dark:bg-earth-dark p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-6">
+                <div class="flex justify-between items-center pb-4 border-b border-gray-100">
+                    <span id="quizQuestionProgress" class="text-sm font-bold text-earth-olive">คำถามข้อที่ 1 จาก 4</span>
+                    <span id="quizScoreBadge" class="bg-earth-sage/20 text-earth-olive text-xs px-3 py-1 rounded-full font-bold">คะแนน: 0</span>
+                </div>
+                
+                <h3 id="quizQuestionTitle" class="text-xl font-bold text-earth-dark">1. ออร์แกเนลล์ใดทำหน้าที่เกี่ยวกับการสังเคราะห์โปรตีนในเซลล์?</h3>
+                
+                <div id="quizOptionsList" class="space-y-3">
+                    <button onclick="handleMainQuizOption(0)" class="w-full text-left px-5 py-3.5 rounded-2xl bg-earth-cream hover:bg-earth-sage/20 font-medium transition border border-earth-sage/20">ก. ไรโบโซม (Ribosome)</button>
+                    <button onclick="handleMainQuizOption(1)" class="w-full text-left px-5 py-3.5 rounded-2xl bg-earth-cream hover:bg-earth-sage/20 font-medium transition border border-earth-sage/20">ข. ไมโทคอนเดรีย (Mitochondria)</button>
+                    <button onclick="handleMainQuizOption(2)" class="w-full text-left px-5 py-3.5 rounded-2xl bg-earth-cream hover:bg-earth-sage/20 font-medium transition border border-earth-sage/20">ค. แวคิวโอล (Vacuole)</button>
+                    <button onclick="handleMainQuizOption(3)" class="w-full text-left px-5 py-3.5 rounded-2xl bg-earth-cream hover:bg-earth-sage/20 font-medium transition border border-earth-sage/20">ง. ไลโซโซม (Lysosome)</button>
+                </div>
+
+                <div id="quizFeedbackBox" class="hidden p-4 rounded-2xl text-sm font-semibold"></div>
+
+                <button id="nextQuizBtn" onclick="nextMainQuizQuestion()" class="hidden w-full py-3.5 rounded-xl bg-earth-olive text-white font-bold shadow-md hover:opacity-95 transition">
+                    ข้อถัดไป <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: REFERENCES ================= -->
+        <div id="page-references" class="page-view hidden animate-in fade-in duration-300 py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
+            <div class="text-center space-y-3">
+                <span class="text-earth-olive text-sm font-bold uppercase tracking-wider">References & Sources</span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-earth-dark">บรรณานุกรมและแหล่งอ้างอิง</h1>
+                <p class="text-gray-600">รายชื่อเอกสาร ตำรา และเว็บไซต์อ้างอิงหลักในการจัดทำเนื้อหา</p>
+            </div>
+
+            <div class="bg-white dark:bg-earth-dark p-8 rounded-3xl shadow-sm border border-earth-sage/20 space-y-6">
+                <ul class="space-y-4 text-sm text-gray-700 dark:text-gray-300">
+                    <li class="pb-3 border-b border-gray-100 flex items-start gap-3">
+                        <i class="fa-solid fa-book text-earth-olive mt-1"></i>
+                        <div>
+                            <strong>สถาบันส่งเสริมการสอนวิทยาศาสตร์และเทคโนโลยี (สสวท.).</strong> หนังสือเรียนรายวิชาเพิ่มเติมวิทยาศาสตร์และเทคโนโลยี ชีววิทยา และฟิสิกส์ ม.ปลาย. กระทรวงศึกษาธิการ.
+                        </div>
+                    </li>
+                    <li class="pb-3 border-b border-gray-100 flex items-start gap-3">
+                        <i class="fa-solid fa-book text-earth-olive mt-1"></i>
+                        <div>
+                            <strong>Campbell, N. A., & Reece, J. B. (2020).</strong> Biology (12th ed.). Pearson Education.
+                        </div>
+                    </li>
+                    <li class="pb-3 border-b border-gray-100 flex items-start gap-3">
+                        <i class="fa-solid fa-book text-earth-olive mt-1"></i>
+                        <div>
+                            <strong>Stewart, J. (2015).</strong> Calculus: Early Transcendentals (8th ed.). Cengage Learning.
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-globe text-earth-olive mt-1"></i>
+                        <div>
+                            <strong>NASA Science & National Geographic.</strong> Astronomy and Earth Science educational portals. (อ้างอิงข้อมูลดาราศาสตร์และภูมิศาสตร์กายภาพ).
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-earth-dark text-earth-cream mt-20 pt-12 pb-8 border-t border-earth-sage/30 z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-earth-sage/20">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-earth-olive flex items-center justify-center text-white">
+                        <i class="fa-solid fa-atom"></i>
+                    </div>
+                    <span class="text-xl font-bold text-white">Thai Science Link Hub</span>
+                </div>
+                <p class="text-xs text-gray-400">แหล่งการเรียนรู้วิทยาศาสตร์ คณิตศาสตร์ และเทคโนโลยี เพื่อการศึกษาและการเรียนรู้ของเยาวชนไทย</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-3">หมวดวิชาหลัก</h4>
+                <ul class="space-y-2 text-xs text-gray-300">
+                    <li><button onclick="switchPage('math')" class="hover:text-earth-sand transition">คณิตศาสตร์</button></li>
+                    <li><button onclick="switchPage('physics')" class="hover:text-earth-sand transition">ฟิสิกส์</button></li>
+                    <li><button onclick="switchPage('chemistry')" class="hover:text-earth-sand transition">เคมี</button></li>
+                    <li><button onclick="switchPage('biology')" class="hover:text-earth-sand transition">ชีววิทยา</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-3">วิชาเพิ่มเติม</h4>
+                <ul class="space-y-2 text-xs text-gray-300">
+                    <li><button onclick="switchPage('astronomy')" class="hover:text-earth-sand transition">ดาราศาสตร์</button></li>
+                    <li><button onclick="switchPage('earthscience')" class="hover:text-earth-sand transition">วิทยาศาสตร์โลกและอวกาศ</button></li>
+                    <li><button onclick="switchPage('geography')" class="hover:text-earth-sand transition">ภูมิศาสตร์</button></li>
+                    <li><button onclick="switchPage('quizzes')" class="hover:text-earth-sand transition">แบบทดสอบออนไลน์</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-3">ผู้เข้าชมเว็บไซต์</h4>
+                <div class="bg-earth-dark/60 p-4 rounded-2xl border border-earth-sage/30 space-y-2">
+                    <p class="text-xs text-gray-300">สถิติผู้เยี่ยมชมแบบเรียลไทม์</p>
+                    <div class="text-2xl font-black text-earth-sand" id="footerVisitorCount">1,489</div>
+                    <p class="text-[10px] text-gray-400">อัปเดตอัตโนมัติทุกวินาที</p>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400">
+            <p>&copy; 2026 Thai Science Link Hub. All Right Reserved.</p>
+            <div class="flex space-x-6 mt-4 sm:mt-0">
+                <button onclick="switchPage('references')" class="hover:text-white">บรรณานุกรม</button>
+                <button onclick="openAuthModal()" class="hover:text-white">เข้าสู่ระบบผู้ดูแลระบบ</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODALS: SEARCH & AUTH ================= -->
+
+    <!-- Global Search Modal -->
+    <div id="searchModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden flex items-start justify-center pt-20 px-4 animate-in fade-in">
+        <div class="bg-white dark:bg-earth-dark w-full max-w-2xl rounded-3xl shadow-2xl border border-earth-sage/20 overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex items-center gap-3">
+                <i class="fa-solid fa-magnifying-glass text-gray-400 text-lg ml-2"></i>
+                <input type="text" id="globalSearchInput" oninput="handleGlobalSearch(this.value)" placeholder="ค้นหาหัวข้อ บทความ หรือวิชา (เช่น เซลล์, แคลคูลัส, ฟิสิกส์)..." class="w-full bg-transparent outline-none text-earth-dark dark:text-white font-medium text-base">
+                <button onclick="closeSearchModal()" class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="searchResultsContainer" class="p-4 max-h-96 overflow-y-auto space-y-2">
+                <div class="text-center py-8 text-gray-400 text-sm">พิมพ์คำค้นหาเพื่อเริ่มค้นหาเนื้อหาในระบบ</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth / Login Modal (User & Admin) -->
+    <div id="authModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center px-4 animate-in fade-in">
+        <div class="bg-white dark:bg-earth-dark w-full max-w-md rounded-3xl shadow-2xl border border-earth-sage/20 overflow-hidden p-6 sm:p-8 space-y-6 relative">
+            <button onclick="closeAuthModal()" class="absolute top-6 right-6 w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 hover:bg-gray-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-earth-olive text-white flex items-center justify-center mx-auto text-xl shadow-md">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-earth-dark">เข้าสู่ระบบ / ระบบสมาชิก</h3>
+                <p class="text-xs text-gray-500">เลือกสถานะผู้ใช้งานหรือเข้าสู่ระบบด้วยบัญชีจำลอง</p>
+            </div>
+
+            <!-- Role Tabs -->
+            <div class="flex rounded-xl bg-earth-cream p-1">
+                <button onclick="setAuthRole('user')" id="tabRoleUser" class="flex-1 py-2 rounded-lg text-xs font-bold bg-white text-earth-olive shadow-sm transition">ผู้ใช้งานทั่วไป (User)</button>
+                <button onclick="setAuthRole('admin')" id="tabRoleAdmin" class="flex-1 py-2 rounded-lg text-xs font-bold text-gray-500 transition">ผู้ดูแลระบบ (Admin)</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">อีเมลหรือชื่อผู้ใช้งาน</label>
+                    <input type="text" id="loginUsername" placeholder="user@sciencehub.th หรือ admin" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-earth-dark/50 text-sm outline-none focus:border-earth-olive">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">รหัสผ่าน</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-earth-dark/50 text-sm outline-none focus:border-earth-olive">
+                </div>
+                <button onclick="performLogin()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-earth-olive to-forest-700 text-white font-bold shadow-md hover:opacity-95 transition text-sm">
+                    เข้าสู่ระบบ
+                </button>
+            </div>
+            
+            <div id="adminPanelNotice" class="hidden bg-amber-50 border border-amber-200 text-amber-800 text-xs p-3 rounded-xl">
+                <strong>สิทธิ์ผู้ดูแลระบบ (Admin):</strong> คุณสามารถแก้ไขเนื้อหา เพิ่มบทความ และจัดการระบบสมาชิกได้
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert / Toast Notification -->
+    <div id="customAlert" class="fixed bottom-6 right-6 z-50 bg-earth-dark text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-32 opacity-0 transition-all duration-300">
+        <i class="fa-solid fa-circle-check text-earth-sage text-xl"></i>
+        <span id="alertMessage" class="text-sm font-medium">การดำเนินการสำเร็จ</span>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // State Management
+        let currentRole = 'user';
+        let loggedInUser = null;
+        let visitorCountValue = 1489;
+
+        // Interactive Mouse Parallax Effect for Background & Floating Graphics
+        const canvas = document.getElementById('parallaxCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Initialize Floating Particles
+        for (let i = 0; i < 35; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 3 + 1,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                color: Math.random() > 0.5 ? '#84a98c' : '#52796f'
+            });
+        }
+
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / width - 0.5) * 30;
+            mouseY = (e.clientY / height - 0.5) * 30;
+
+            // Move hero floating elements slightly
+            const f1 = document.getElementById('floatElement1');
+            const f2 = document.getElementById('floatElement2');
+            const f3 = document.getElementById('floatElement3');
+            const f4 = document.getElementById('floatElement4');
+            if (f1) f1.style.transform = `translate(${mouseX * 0.5}px, ${mouseY * 0.5}px)`;
+            if (f2) f2.style.transform = `translate(${mouseX * -0.6}px, ${mouseY * -0.6}px)`;
+            if (f3) f3.style.transform = `translate(${mouseX * 0.8}px, ${mouseY * 0.4}px)`;
+            if (f4) f4.style.transform = `translate(${mouseX * -0.4}px, ${mouseY * 0.7}px)`;
+        });
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(132, 169, 140, 0.15)';
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // Live Visitor Counter Animation
+        setInterval(() => {
+            if (Math.random() > 0.6) {
+                visitorCountValue += Math.floor(Math.random() * 3);
+                document.getElementById('visitorCount').innerText = visitorCountValue.toLocaleString();
+                document.getElementById('footerVisitorCount').innerText = visitorCountValue.toLocaleString();
+            }
+        }, 4000);
+
+        // Page Navigation Controller
+        function switchPage(pageId) {
+            const pages = document.querySelectorAll('.page-view');
+            pages.forEach(p => p.classList.add('hidden'));
+
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Accordion Toggle
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.toggle('hidden');
+            }
+        }
+
+        // Quiz Answer Checker (Subject pages)
+        function checkQuizAnswer(btn, isCorrect, message) {
+            const parent = btn.parentElement;
+            const buttons = parent.querySelectorAll('button');
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.add('opacity-70');
+            });
+
+            if (isCorrect) {
+                btn.classList.add('bg-forest-100', 'border-forest-500', 'font-bold');
+            } else {
+                btn.classList.add('bg-red-50', 'border-red-300');
+            }
+
+            // Find feedback container
+            const resultBox = parent.nextElementSibling;
+            if (resultBox) {
+                resultBox.classList.remove('hidden');
+                resultBox.className = `text-xs font-semibold mt-2 p-2.5 rounded-xl ${isCorrect ? 'bg-forest-50 text-forest-800' : 'bg-red-50 text-red-800'}`;
+                resultBox.innerText = message;
+            }
+        }
+
+        // Interactive Main Quiz State
+        const mainQuizQuestions = [
+            {
+                q: "1. ออร์แกเนลล์ใดทำหน้าที่เกี่ยวกับการสังเคราะห์โปรตีนในเซลล์?",
+                options: ["ก. ไรโบโซม (Ribosome)", "ข. ไมโทคอนเดรีย (Mitochondria)", "ค. แวคิวโอล (Vacuole)", "ง. ไลโซโซม (Lysosome)"],
+                correct: 0
+            },
+            {
+                q: "2. ค่าของอนุพันธ์ d/dx (x^2) เท่ากับข้อใด?",
+                options: ["ก. x", "ข. 2x", "ค. x^2", "ง. 2"],
+                correct: 1
+            },
+            {
+                q: "3. กฎการเคลื่อนที่ข้อที่ 2 ของนิวตันตรงกับสมการใด?",
+                options: ["ก. F = ma", "ข. E = mc^2", "ค. V = IR", "ง. P = mg"],
+                correct: 0
+            },
+            {
+                q: "4. ดาวเคราะห์ดวงใดในระบบสุริยะที่ได้ชื่อว่าเป็น 'ดาวเคราะห์แดง'?",
+                options: ["ก. ดาวศุกร์", "ข. ดาวอังคาร", "ค. ดาวพฤหัสบดี", "ง. ดาวเสาร์"],
+                correct: 1
+            }
+        ];
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        function handleMainQuizOption(selectedIndex) {
+            const q = mainQuizQuestions[currentQuizIndex];
+            const feedback = document.getElementById('quizFeedbackBox');
+            const nextBtn = document.getElementById('nextQuizBtn');
+            const optionsContainer = document.getElementById('quizOptionsList');
+            const buttons = optionsContainer.querySelectorAll('button');
+
+            buttons.forEach((b, idx) => {
+                b.disabled = true;
+                if (idx === q.correct) {
+                    b.classList.add('bg-forest-100', 'border-forest-600', 'font-bold');
+                } else if (idx === selectedIndex) {
+                    b.classList.add('bg-red-100', 'border-red-400');
+                }
+            });
+
+            feedback.classList.remove('hidden');
+            if (selectedIndex === q.correct) {
+                quizScore += 25;
+                feedback.className = "p-4 rounded-2xl text-sm font-semibold bg-forest-50 text-forest-800";
+                feedback.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i> ถูกต้องเยี่ยมมาก!';
+            } else {
+                feedback.className = "p-4 rounded-2xl text-sm font-semibold bg-red-50 text-red-800";
+                feedback.innerHTML = '<i class="fa-solid fa-circle-xmark mr-2"></i> ตอบผิดครับ คำตอบที่ถูกต้องคือ ' + q.options[q.correct];
+            }
+
+            document.getElementById('quizScoreBadge').innerText = `คะแนน: ${quizScore}`;
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextMainQuizQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex >= mainQuizQuestions.length) {
+                document.getElementById('mainQuizContainer').innerHTML = `
+                    <div class="text-center py-8 space-y-4">
+                        <div class="w-16 h-16 bg-forest-100 text-forest-600 rounded-full flex items-center justify-center text-3xl mx-auto">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-earth-dark">ทำแบบทดสอบครบทุกข้อแล้ว!</h3>
+                        <p class="text-gray-600">คะแนนรวมที่คุณทำได้คือ <strong class="text-earth-olive text-xl">${quizScore} / 100</strong> คะแนน</p>
+                        <button onclick="location.reload()" class="px-6 py-3 rounded-xl bg-earth-olive text-white font-bold text-sm">ทำแบบทดสอบใหม่อีกครั้ง</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const q = mainQuizQuestions[currentQuizIndex];
+            document.getElementById('quizQuestionProgress').innerText = `คำถามข้อที่ ${currentQuizIndex + 1} จาก 4`;
+            document.getElementById('quizQuestionTitle').innerText = q.q;
+            document.getElementById('quizFeedbackBox').classList.add('hidden');
+            document.getElementById('nextQuizBtn').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('quizOptionsList');
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                optionsContainer.innerHTML += `<button onclick="handleMainQuizOption(${idx})" class="w-full text-left px-5 py-3.5 rounded-2xl bg-earth-cream hover:bg-earth-sage/20 font-medium transition border border-earth-sage/20">${opt}</button>`;
+            });
+        }
+
+        // Search Modal Controller
+        function openSearchModal() {
+            document.getElementById('searchModal').classList.remove('hidden');
+            document.getElementById('globalSearchInput').focus();
+        }
+        function closeSearchModal() {
+            document.getElementById('searchModal').classList.add('hidden');
+        }
+
+        const searchableItems = [
+            { title: "ชีววิทยา: โครงสร้างเซลล์และออร์แกเนลล์", page: "biology", category: "ชีววิทยา" },
+            { title: "แคลคูลัสและอนุพันธ์เชิงฟังก์ชัน", page: "math", category: "คณิตศาสตร์" },
+            { title: "กฎการเคลื่อนที่ของนิวตัน", page: "physics", category: "ฟิสิกส์" },
+            { title: "พันธะเคมีและตารางธาตุ", page: "chemistry", category: "เคมี" },
+            { title: "ดาราศาสตร์และหลุมดำ", page: "astronomy", category: "ดาราศาสตร์" },
+            { title: "ธรณีแปรสัณฐานและแผ่นเปลือกโลก", page: "earthscience", category: "วิทยาศาสตร์โลกและอวกาศ" },
+            { title: "ระบบสารสนเทศภูมิศาสตร์ (GIS)", page: "geography", category: "ภูมิศาสตร์" }
+        ];
+
+        function handleGlobalSearch(query) {
+            const container = document.getElementById('searchResultsContainer');
+            if (!query.trim()) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-400 text-sm">พิมพ์คำค้นหาเพื่อเริ่มค้นหาเนื้อหาในระบบ</div>';
+                return;
+            }
+
+            const filtered = searchableItems.filter(item => item.title.toLowerCase().includes(query.toLowerCase()) || item.category.toLowerCase().includes(query.toLowerCase()));
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-400 text-sm">ไม่พบผลการค้นหาที่ตรงกัน</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            filtered.forEach(item => {
+                container.innerHTML += `
+                    <div onclick="switchPage('${item.page}'); closeSearchModal();" class="p-3 rounded-xl hover:bg-earth-cream cursor-pointer flex justify-between items-center transition">
+                        <div>
+                            <span class="text-xs font-semibold text-earth-olive bg-earth-sage/20 px-2 py-0.5 rounded-full">${item.category}</span>
+                            <h4 class="font-bold text-sm text-earth-dark mt-1">${item.title}</h4>
+                        </div>
+                        <i class="fa-solid fa-arrow-right text-gray-400"></i>
+                    </div>
+                `;
+            });
+        }
+
+        // Auth Modal & Login Controller
+        function openAuthModal() {
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
+
+        function setAuthRole(role) {
+            currentRole = role;
+            const btnUser = document.getElementById('tabRoleUser');
+            const btnAdmin = document.getElementById('tabRoleAdmin');
+            const adminNotice = document.getElementById('adminPanelNotice');
+
+            if (role === 'user') {
+                btnUser.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-white text-earth-olive shadow-sm transition";
+                btnAdmin.className = "flex-1 py-2 rounded-lg text-xs font-bold text-gray-500 transition";
+                adminNotice.classList.add('hidden');
+                document.getElementById('loginUsername').value = "";
+            } else {
+                btnAdmin.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-white text-earth-terracotta shadow-sm transition";
+                btnUser.className = "flex-1 py-2 rounded-lg text-xs font-bold text-gray-500 transition";
+                adminNotice.classList.remove('hidden');
+                document.getElementById('loginUsername').value = "admin@sciencehub.th";
+                document.getElementById('loginPassword').value = "admin1234";
+            }
+        }
+
+        function performLogin() {
+            const username = document.getElementById('loginUsername').value;
+            if (!username) {
+                showAlert('กรุณากรอกชื่อผู้ใช้งานหรืออีเมล');
+                return;
+            }
+
+            loggedInUser = { name: username, role: currentRole };
+            document.getElementById('authBtnText').innerText = currentRole === 'admin' ? 'Admin: ' + username.split('@')[0] : username.split('@')[0];
+            closeAuthModal();
+            showAlert(`เข้าสู่ระบบสำเร็จในฐานะ ${currentRole === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : 'สมาชิกทั่วไป'}`);
+        }
+
+        // Custom Toast Notification
+        function showAlert(msg) {
+            const alertBox = document.getElementById('customAlert');
+            document.getElementById('alertMessage').innerText = msg;
+            alertBox.classList.remove('translate-y-32', 'opacity-0');
+            setTimeout(() => {
+                alertBox.classList.add('translate-y-32', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
